@@ -31,7 +31,7 @@ const password = ref('')
 const login = async () => {
     try {
         if (username.value && password.value) {
-            const response = await axios.post('http://192.168.137.1:3001/login', {
+            const response = await axios.post('http://localhost:3001/login', {
                 username: username.value,
                 password: password.value
             })

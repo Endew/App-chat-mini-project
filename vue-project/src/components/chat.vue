@@ -1,6 +1,9 @@
 <template>
     <div class="chat-container">
-        <h2 style="padding-left: 1rem;">Chat Messages</h2>
+        <div class="chat-header">
+            <h2 style="padding-left: 1rem;">Chat Messages</h2>
+            <button class="btn-logout" @click="logoutConfirm = true">Logout</button>
+        </div>
         <div class="chat-box" ref="chatBox">
             <ul>
                 <li 
@@ -34,18 +37,27 @@
             <input type="text" v-model="newMessage" placeholder="Message" @keyup.enter="sendMessage" />
             <button @click="sendMessage">Send</button>
         </div>
+        <div v-if="logoutConfirm" class="modal-overlay">
+            <div class="modal">
+                <p>Logout ?</p>
+                <button @click="logout" style="background-color: #3be15f;">Yes</button>
+                <button @click="logoutConfirm = false" style="background-color: #ea4545;">No</button>
+            </div>
+        </div>
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
 import axios from 'axios'
+import { loginStatus } from '../loginStatus'
 
 const chatMessages = ref([])
 const chatMessagesOld = ref('')
 const newMessage = ref('')
 const chatBox = ref(null)
 const user_id = ref('')
+const logoutConfirm = ref(false)
 
 const scrollToBottom = () => {
     nextTick(() => {
@@ -59,7 +71,7 @@ const sendMessage = async () => {
     if (newMessage.value.trim() === '') return
 
     try {
-        await axios.post('http://192.168.137.1:3001/sendChat', {
+        await axios.post('http://localhost:3001/sendChat', {
             chat_text: newMessage.value,
             user_id: user_id.value,
             chat_time: new Date().toISOString()
@@ -74,7 +86,7 @@ const sendMessage = async () => {
 
 const loadChatMessages = async () => {
     try {
-        let response = await axios.get('http://192.168.137.1:3001/showChat')
+        let response = await axios.get('http://localhost:3001/showChat')
         chatMessages.value = response.data
         // console.log('Chat messages:', chatMessages.value)
     } catch (error) {
@@ -90,6 +102,13 @@ const formatTime = (isoString) => {
 const loadUserId = () => {
     user_id.value = Number(localStorage.getItem('user_id'))
     // console.log('User ID:', user_id.value)
+}
+
+const logout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user_id')
+    loginStatus.value = 0
+    window.location.reload()
 }
 
 let realTimeChat = null
@@ -122,6 +141,47 @@ onMounted(async () => {
     margin: 0px;
     font-family: Arial, sans-serif;
     background-color: #ffffff;
+}
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-bottom: 1px solid #ccc;
+}
+.btn-logout {
+    padding: 10px 20px;
+    background-color: #ea4545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+.modal-overlay {
+    position: fixed;
+    // top: 0;
+    // left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.modal {
+    background-color: white;
+    padding: 30px;
+    border-radius: 5px;
+    text-align: center;
+}
+.modal button {
+    padding: 10px 20px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 .chat-box {
     padding: 0px;
