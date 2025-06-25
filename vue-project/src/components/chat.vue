@@ -75,6 +75,10 @@ const sendMessage = async () => {
             chat_text: newMessage.value,
             user_id: user_id.value,
             chat_time: new Date().toISOString()
+        }, 
+        { headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
         })
         newMessage.value = ''
         await loadChatMessages()
@@ -86,7 +90,11 @@ const sendMessage = async () => {
 
 const loadChatMessages = async () => {
     try {
-        let response = await axios.get('http://localhost:3001/showChat')
+        let response = await axios.get('http://localhost:3001/showChat', {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        })
         chatMessages.value = response.data
         // console.log('Chat messages:', chatMessages.value)
     } catch (error) {

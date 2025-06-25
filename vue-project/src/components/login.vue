@@ -35,8 +35,9 @@ const login = async () => {
                 username: username.value,
                 password: password.value
             })
-            localStorage.setItem('token', response.data)
 
+            console.log('token=', response.data.token)
+            localStorage.setItem('token', response.data.token)
             const token = localStorage.getItem('token')
 
             const decode = jwtDecode(token)
